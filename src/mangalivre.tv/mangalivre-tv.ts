@@ -6,18 +6,60 @@ class Provider {
     private email = "{{email}}"
     private password = "{{password}}"
 
+    private nexusValue = "c77-block-q"
+
     private readonly defaultHeaders = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:152.0) Gecko/20100101 Firefox/152.0",
         "Accept": "application/json, text/plain, */*",
         "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
-        "x-tly-token": "v99-web-z",
         "Referer": "https://toonlivre.net/",
         "Pragma": "no-cache",
         "Cache-Control": "no-cache"
     }
 
+    private getHeaders(extra?: Record<string, string>): Record<string, string> {
+        return { ...this.defaultHeaders, "x-tly-nexus": this.nexusValue, ...(extra || {}) }
+    }
+
+    // Fetches the main bundle to extract the current x-tly-nexus value from obfuscated char-code arrays.
+    // The bundle uses [120,45,...,115] (="x-tly-nexus") as a fixed key — the array that follows is the rotating value.
+    private async refreshNexus(): Promise<void> {
+        try {
+            const homeRes = await fetch(this.baseUrl, {
+                headers: {
+                    "User-Agent": this.defaultHeaders["User-Agent"],
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language": "pt-BR,pt;q=0.9"
+                }
+            })
+            if (!homeRes.ok) return
+            const html = await homeRes.text()
+
+            const bundleMatch = html.match(/["'](\/assets\/index-[A-Za-z0-9_\-]+\.js)["']/)
+            if (!bundleMatch) return
+
+            const bundleRes = await fetch(`${this.baseUrl}${bundleMatch[1]}`, {
+                headers: { "User-Agent": this.defaultHeaders["User-Agent"] }
+            })
+            if (!bundleRes.ok) return
+            const bundle = await bundleRes.text()
+
+            // Fixed key array for "x-tly-nexus"; next char-code array is the rotating value
+            const m = bundle.match(/\[120,45,116,108,121,45,110,101,120,117,115\][^[]+\[(\d+(?:,\d+)+)\]\.map\([^)]+String\.fromCharCode/)
+            if (!m) return
+
+            const decoded = m[1].split(",").map((n: string) => String.fromCharCode(parseInt(n, 10))).join("")
+            if (decoded) {
+                this.nexusValue = decoded
+                console.log("x-tly-nexus atualizado:", decoded)
+            }
+        } catch (e) {
+            console.error("refreshNexus falhou:", e)
+        }
+    }
+
     private async getViewerCookie(): Promise<string> {
-        const res = await fetch(this.baseUrl, { headers: this.defaultHeaders })
+        const res = await fetch(this.baseUrl, { headers: this.getHeaders() })
         let cookie = ""
         if (typeof res.headers.get === "function") {
             cookie = res.headers.get("set-cookie") || ""
@@ -36,7 +78,7 @@ class Provider {
         }
         const res = await fetch(`${this.apiUrl}/auth/login`, {
             method: "POST",
-            headers: { ...this.defaultHeaders, "Content-Type": "application/json" },
+            headers: this.getHeaders({ "Content-Type": "application/json" }),
             body: JSON.stringify({ email: this.email, password: this.password })
         })
         if (!res.ok) {
@@ -63,150 +105,97 @@ class Provider {
         }
     }
 
-    /**
-     * Searches for manga using the ToonLivre API
-     * @param opts Query options containing the search term
-     * @returns Array of search results
-     */
     async search(opts: QueryOptions): Promise<SearchResult[]> {
-        if (!opts?.query?.trim()) {
-            return []
-        }
-
+        if (!opts?.query?.trim()) return []
         try {
-            const query = opts.query.trim()
-            const searchUrl = `${this.apiUrl}/mangas/search?page=1&limit=24&sortBy=popular&sortOrder=desc&q=${encodeURIComponent(query)}`
-            
-            console.log("Searching ToonLivre API:", searchUrl)
-
-            const response = await fetch(searchUrl, {
-                headers: this.defaultHeaders
-            })
-            
+            const searchUrl = `${this.apiUrl}/mangas/search?page=1&limit=24&sortBy=popular&sortOrder=desc&q=${encodeURIComponent(opts.query.trim())}`
+            const response = await fetch(searchUrl, { headers: this.getHeaders() })
             if (!response.ok) {
-                console.error(`Search failed with status: ${response.status}`)
+                console.error(`Search failed: ${response.status}`)
                 return []
             }
-            
             const data = await response.json()
-            if (!data?.mangas || !Array.isArray(data.mangas)) {
-                return []
-            }
-
-            const tKey = "ti" + "tle"; // Ofuscando 'title' para o Playground
-
-            return data.mangas.map((manga: any) => {
-                const result: SearchResult = {
-                    id: manga.id,
-                    image: manga.coverUrl,
-                    [tKey]: manga.title // Usando a chave ofuscada
-                } as any;
-                return result;
-            })
+            if (!data?.mangas || !Array.isArray(data.mangas)) return []
+            const tKey = "ti" + "tle"
+            return data.mangas.map((manga: any) => ({ id: manga.id, image: manga.coverUrl, [tKey]: manga.title } as any))
         } catch (error) {
             console.error("Search failed:", error)
             return []
         }
     }
 
-    /**
-     * Finds all chapters for a given manga using the API
-     * @param mangaId The manga identifier (e.g., 'obra-ab7c613b')
-     * @returns Array of chapter details
-     */
     async findChapters(mangaId: string): Promise<ChapterDetails[]> {
         try {
-            const mangaUrl = `${this.apiUrl}/mangas/${mangaId}`
-            console.log("Fetching manga details from ToonLivre API:", mangaUrl)
-
-            const response = await fetch(mangaUrl, {
-                headers: this.defaultHeaders
-            })
-
+            const response = await fetch(`${this.apiUrl}/mangas/${mangaId}`, { headers: this.getHeaders() })
             if (!response.ok) {
-                console.error(`Failed to fetch manga details: ${response.status}`)
+                console.error(`findChapters failed: ${response.status}`)
                 return []
             }
-
             const data = await response.json()
             const chaptersArray = data?.chapters || data?.recentChapters || []
-            
-            if (!Array.isArray(chaptersArray)) {
-                return []
-            }
+            if (!Array.isArray(chaptersArray)) return []
 
-            const tKey = "ti" + "tle";
-            const nKey = "num" + "ber"; // Ofuscando 'number' para o Playground
-
-            // Ordena numericamente para garantir que o primeiro capítulo seja o índice 0
-            const sortedChapters = chaptersArray.sort((a: any, b: any) => {
-                return parseFloat(a[nKey]) - parseFloat(b[nKey]);
-            });
-
-            return sortedChapters.map((ch: any, index: number) => {
-                const chNumber = ch[nKey];
-                const chTitle = ch[tKey];
-                
-                const detail: ChapterDetails = {
-                    id: `${mangaId}|${ch.id}`, // Combined ID to use in findChapterPages
-                    url: `${this.baseUrl}/${mangaId}/${chNumber}`,
-                    [tKey]: chTitle ? `Cap. ${chNumber} - ${chTitle}` : `Capítulo ${chNumber}`,
-                    chapter: chNumber,
-                    index: index,
-                    language: "pt-BR",
-                } as any;
-                return detail;
-            })
+            const tKey = "ti" + "tle"
+            const nKey = "num" + "ber"
+            const sorted = chaptersArray.sort((a: any, b: any) => parseFloat(a[nKey]) - parseFloat(b[nKey]))
+            return sorted.map((ch: any, index: number) => ({
+                id: `${mangaId}|${ch.id}`,
+                url: `${this.baseUrl}/${mangaId}/${ch[nKey]}`,
+                [tKey]: ch[tKey] ? `Cap. ${ch[nKey]} - ${ch[tKey]}` : `Capítulo ${ch[nKey]}`,
+                chapter: ch[nKey],
+                index,
+                language: "pt-BR",
+            } as any))
         } catch (error) {
             console.error("findChapters failed:", error)
             return []
         }
     }
 
-    /**
-     * Finds all pages for a given chapter
-     * @param chapterId Combined identifier (mangaId|chapterId)
-     * @returns Array of chapter pages
-     */
     async findChapterPages(chapterId: string): Promise<ChapterPage[]> {
-        try {
-            const parts = chapterId.split("|")
-            const mId = parts[0]
-            const cId = parts[1]
+        const parts = chapterId.split("|")
+        const mId = parts[0]
+        const cId = parts[1]
+        if (!mId || !cId) {
+            console.error("Invalid chapterId format. Expected mangaId|chId")
+            return []
+        }
 
-            if (!mId || !cId) {
-                console.error("Invalid chapterId format. Expected mangaId|chId")
-                return []
-            }
+        const pagesUrl = `${this.apiUrl}/mangas/${mId}/chapters/${cId}`
+        const proxy = "https://slightly-free-mayfly.edgecompute.app/?url="
 
-            const pagesUrl = `${this.apiUrl}/mangas/${mId}/chapters/${cId}`
-            console.log("Fetching chapter pages from ToonLivre API:", pagesUrl)
-
+        const doFetch = async (): Promise<Response> => {
             const viewer = await this.getViewerCookie()
             const token = await this.getToken()
             const cookieParts = [`access_token=${token}`]
             if (viewer) cookieParts.push(`tl_viewer=${viewer}`)
-            const response = await fetch(pagesUrl, {
-                headers: { ...this.defaultHeaders, "Cookie": cookieParts.join("; ") }
-            })
+            return fetch(pagesUrl, { headers: this.getHeaders({ "Cookie": cookieParts.join("; ") }) })
+        }
+
+        try {
+            let response = await doFetch()
+
+            if (response.status === 403) {
+                console.log("403 em páginas do capítulo, atualizando x-tly-nexus...")
+                await this.refreshNexus()
+                response = await doFetch()
+            }
 
             if (!response.ok) {
                 const body = await response.text()
                 console.error(`Failed to fetch chapter pages: ${response.status} - ${body}`)
                 return []
             }
-            
+
             const data = await response.json()
-            if (!data?.pages || !Array.isArray(data.pages)) {
-                return []
-            }
+            if (!data?.pages || !Array.isArray(data.pages)) return []
 
             return data.pages.map((pageUrl: string, index: number) => ({
-                url: pageUrl,
-                index: index,
+                url: pageUrl.includes("cdn.toonlivre.net") ? `${proxy}${encodeURIComponent(pageUrl)}` : pageUrl,
+                index,
                 headers: {
-                    'Referer': `${this.baseUrl}/`,
-                    'User-Agent': this.defaultHeaders["User-Agent"]
+                    "Referer": `${this.baseUrl}/`,
+                    "User-Agent": this.defaultHeaders["User-Agent"]
                 }
             }))
         } catch (error) {
