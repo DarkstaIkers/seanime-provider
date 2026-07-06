@@ -6,9 +6,15 @@ class Provider {
     private cdnUrl = "https://cdn.kuromangas.com"
     
     // Constants for Decryption
-    private VITE_API_ENC_KEY = "5ato8l674shksfE2oMmieshonuYTusF4jKdqEwhUEft9787147sadr32"
+    private VITE_API_ENC_KEY = "23ato8l674shksfE2oMmieshonuYTusF4jKdqEwhUEft9dsadcxzde3"
     private HOSTNAME_PART = "kuromangas.com::v2"
     private ANTIBOT = "x9_4v2_b"
+
+    // Proteção CSRF é double-submit-cookie puro (servidor só compara Cookie vs header, sem estado
+    // guardado). O valor real vem no Set-Cookie "kuro_x" do login, mas o Seanime só repassa o
+    // primeiro Set-Cookie de respostas com múltiplos, então o segundo nunca chega ao JS. Como o
+    // servidor aceita qualquer valor desde que Cookie e header sejam iguais, usamos uma constante fixa.
+    private readonly csrfValue = "seanime-kuromangas-provider"
 
     getSettings(): Settings {
         return {
@@ -59,7 +65,7 @@ class Provider {
         }
 
         const payload = JSON.stringify({ email, password });
-        
+
         try {
             const res = await fetch(`https://kuromangas.com/api/auth/login`, {
                 method: "POST",
@@ -83,7 +89,7 @@ class Provider {
                 if (typeof res.headers.get === 'function') {
                     setCookieStr = res.headers.get("set-cookie") || res.headers.get("Set-Cookie") || "";
                 } else {
-                    for (const key in res.headers) {
+                    for (const key in res.headers as any) {
                         if (key.toLowerCase() === "set-cookie") {
                             const val = (res.headers as any)[key];
                             setCookieStr = Array.isArray(val) ? val.join(";") : val;
@@ -91,18 +97,6 @@ class Provider {
                         }
                     }
                 }
-            }
-
-            if (!setCookieStr) {
-                // If we didn't get Set-Cookie, it might be in a different format
-                // Let's dump headers to help debug just in case
-                const h: any = {};
-                if (typeof res.headers.forEach === 'function') {
-                    res.headers.forEach((v: any, k: any) => h[k] = v);
-                } else {
-                    Object.assign(h, res.headers);
-                }
-                throw "Header Set-Cookie não retornado. Headers: " + JSON.stringify(h);
             }
 
             const match = setCookieStr.match(/kuro_session=([^;]+)/);
@@ -118,11 +112,14 @@ class Provider {
 
     private async fetchApi(url: string): Promise<any> {
         try {
-            const token = await this.getToken();
-            
+            const session = await this.getToken();
+
             return await this.requestAPI(url, {
                 headers: {
-                    "Cookie": `kuro_session=${token}`,
+                    // Proteção CSRF é double-submit-cookie puro: o servidor só compara este Cookie
+                    // com o header X-Kuro-Verify, sem checar contra um valor emitido por ele (ver csrfValue acima).
+                    "Cookie": `kuro_session=${session}; kuro_x=${this.csrfValue}`,
+                    "X-Kuro-Verify": this.csrfValue,
                     "Accept": "application/json, text/plain, */*",
                     "Referer": `${this.baseUrl}/catalogo`,
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
