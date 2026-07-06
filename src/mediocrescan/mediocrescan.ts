@@ -3,10 +3,13 @@
 // Variáveis globais para compartilhar o token entre as 7 requisições paralelas do Seanime
 let globalCachedToken: string | null = null;
 let globalLoginPromise: Promise<string> | null = null;
+// O backend já alternou de domínio antes (back -> back2) e pode voltar a qualquer momento;
+// cacheia globalmente qual host respondeu por último para não testar os dois em toda chamada.
+let globalApiHost: string | null = null;
 
 class Provider {
     private readonly baseUrl = "https://mediocrescan.com"
-    private readonly apiUrl = "https://back.mediocrescan.com"
+    private readonly apiHosts = ["https://back.mediocrescan.com", "https://back2.mediocrescan.com"]
 
     private readonly defaultHeaders = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -20,6 +23,32 @@ class Provider {
             supportsMultiLanguage: false,
             supportsMultiScanlator: false,
         }
+    }
+
+    private currentApiHost(): string {
+        return globalApiHost || this.apiHosts[0]
+    }
+
+    // Tenta o host cacheado (ou back, depois back2). Um 5xx ou falha de rede pula pro próximo host;
+    // qualquer outra resposta (200, 401, 404...) confirma que o host está no ar e vira o cache.
+    private async apiFetch(path: string, opts?: any): Promise<Response> {
+        const cached = globalApiHost
+        const hosts = cached ? [cached, ...this.apiHosts.filter(h => h !== cached)] : this.apiHosts
+        let lastError: any = null
+        for (const host of hosts) {
+            try {
+                const res = await fetch(`${host}${path}`, opts)
+                if (res.status >= 500) {
+                    lastError = new Error(`${host} respondeu ${res.status}`)
+                    continue
+                }
+                globalApiHost = host
+                return res
+            } catch (e) {
+                lastError = e
+            }
+        }
+        throw lastError || new Error("Todos os hosts da API do MediocreScan falharam")
     }
 
     private getMelhorTitulo(obra: any): string {
@@ -56,7 +85,7 @@ class Provider {
         globalLoginPromise = (async () => {
             console.log("Fazendo login no MediocreScan...");
             console.log("-> Iniciando fetch login...");
-            const response = await fetch(`${this.apiUrl}/auth/login`, {
+            const response = await this.apiFetch(`/auth/login`, {
                 method: "POST",
                 headers: {
                     ...this.defaultHeaders,
@@ -97,10 +126,10 @@ class Provider {
         try {
             const token = await this.authenticate();
             // A rota de pesquisa exata fornecida pelo network tab: /obras/buscar?string=...
-            const searchUrl = `${this.apiUrl}/obras/buscar?string=${encodeURIComponent(opts.query)}&limite=24&pagina=1`;
-            console.log("URL de busca:", searchUrl);
-            
-            const response = await fetch(searchUrl, {
+            const searchPath = `/obras/buscar?string=${encodeURIComponent(opts.query)}&limite=24&pagina=1`;
+            console.log("URL de busca:", `${this.currentApiHost()}${searchPath}`);
+
+            const response = await this.apiFetch(searchPath, {
                 headers: { ...this.defaultHeaders, "Authorization": token }
             });
             
@@ -132,7 +161,7 @@ class Provider {
                 [tKey]: obra.nome || obra.titulo || "",
                 synonyms: [obra.nome || ""],
                 year: 0,
-                image: obra.imagem ? `https://back.mediocrescan.com/media/obras/${obra.id}/capa?f=${obra.imagem}&q=40&fit=cover&w=600` : "",
+                image: obra.imagem ? `${this.currentApiHost()}/media/obras/${obra.id}/capa?f=${obra.imagem}&q=40&fit=cover&w=600` : "",
             }));
 
         } catch (error) {
@@ -144,9 +173,8 @@ class Provider {
     async findChapters(mangaId: string): Promise<ChapterDetails[]> {
         try {
             const token = await this.authenticate();
-            const mangaUrl = `${this.apiUrl}/obras/${mangaId}`;
 
-            const response = await fetch(mangaUrl, {
+            const response = await this.apiFetch(`/obras/${mangaId}`, {
                 headers: { ...this.defaultHeaders, "Authorization": token }
             });
 
@@ -200,8 +228,7 @@ class Provider {
             const [mId, cId] = chapterId.split("|");
 
             // 1. Pegar o UUID do capítulo na API do backend
-            const apiUrl = `${this.apiUrl}/capitulos/${cId}`;
-            const apiResponse = await fetch(apiUrl, {
+            const apiResponse = await this.apiFetch(`/capitulos/${cId}`, {
                 headers: { ...this.defaultHeaders, "Authorization": token }
             });
 
