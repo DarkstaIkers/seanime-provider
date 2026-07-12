@@ -3,7 +3,7 @@
   "name": "MediocreScan",
   "description": "Manhwa provider for MediocreScan. NOTE: Requires an account created on the site (configured in the extension's settings) to work.",
   "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/mediocrescan/mediocrescan.json",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": "jhoorodr",
   "type": "manga-provider",
   "language": "typescript",
