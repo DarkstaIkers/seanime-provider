@@ -1,38 +1,38 @@
 {
-    "id": "sakuramangas",
-    "name": "Sakura Mangas",
-    "description": "Sakura Mangas provider. Requires the user to paste the Cloudflare cookies obtained from the browser.",
-    "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/sakuramangas/sakuramangas.json",
-    "version": "1.0.0",
-    "author": "jhoorodr",
-    "type": "manga-provider",
-    "language": "typescript",
-    "lang": "pt-BR",
-    "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/sakuramangas.png",
-    "payloadURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/sakuramangas/sakuramangas.ts",
-    "isDevelopment": true,
-    "userConfig": {
-        "requiresConfig": true,
-        "version": 1,
-        "fields": [
-            {
-                "name": "cfClearance",
-                "label": "cf_clearance (cookie do Cloudflare)",
-                "type": "text",
-                "default": ""
-            },
-            {
-                "name": "phpSessId",
-                "label": "PHPSESSID (cookie de sessão)",
-                "type": "text",
-                "default": ""
-            },
-            {
-                "name": "userAgent",
-                "label": "User-Agent do navegador",
-                "type": "text",
-                "default": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0"
-            }
-        ]
-    }
+  "id": "sakuramangas",
+  "name": "Sakura Mangas",
+  "description": "Sakura Mangas provider. Requires the user to paste the Cloudflare cookies obtained from the browser.",
+  "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/sakuramangas/sakuramangas.json",
+  "version": "1.0.1",
+  "author": "jhoorodr",
+  "type": "manga-provider",
+  "language": "typescript",
+  "lang": "pt-BR",
+  "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/sakuramangas.png",
+  "payloadURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/sakuramangas/sakuramangas.ts",
+  "isDevelopment": true,
+  "userConfig": {
+    "requiresConfig": true,
+    "version": 1,
+    "fields": [
+      {
+        "name": "cfClearance",
+        "label": "cf_clearance (cookie do Cloudflare)",
+        "type": "text",
+        "default": ""
+      },
+      {
+        "name": "phpSessId",
+        "label": "PHPSESSID (cookie de sessão)",
+        "type": "text",
+        "default": ""
+      },
+      {
+        "name": "userAgent",
+        "label": "User-Agent do navegador",
+        "type": "text",
+        "default": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:151.0) Gecko/20100101 Firefox/151.0"
+      }
+    ]
+  }
 }
