@@ -1,14 +1,14 @@
 {
-    "id": "animesonlinecc-provider",
-    "name": "AnimesOnlineCC",
-    "description": "Anime streaming provider for AnimesOnlineCC. May only work with a Brazil VPN.",
-    "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/animesonlinecc/animesonlinecc.json",
-    "version": "1.0.1",
-    "author": "Jhoorodr",
-    "type": "onlinestream-provider",
-    "language": "typescript",
-    "lang": "pt-BR",
-    "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/animesonlinecc.png",
-    "payloadURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/animesonlinecc/animesonlinecc.ts",
-    "isDevelopment": false
+  "id": "animesonlinecc-provider",
+  "name": "AnimesOnlineCC",
+  "description": "Anime streaming provider for AnimesOnlineCC. May only work with a Brazil VPN.",
+  "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/animesonlinecc/animesonlinecc.json",
+  "version": "1.0.2",
+  "author": "Jhoorodr",
+  "type": "onlinestream-provider",
+  "language": "typescript",
+  "lang": "pt-BR",
+  "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/animesonlinecc.png",
+  "payloadURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/animesonlinecc/animesonlinecc.ts",
+  "isDevelopment": false
 }
