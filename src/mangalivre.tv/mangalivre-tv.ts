@@ -6,7 +6,10 @@ class Provider {
     private email = "{{email}}"
     private password = "{{password}}"
 
-    private nexusValue = "c77-block-q"
+    // ponytail: site rotates both the header NAME and value (seen "x-tly-nexus" -> "x-tly-omega" in the wild).
+    // Defaults below are just a starting point; refreshAntiBotHeader() re-derives both from the bundle on 403.
+    private antiBotHeaderName = "x-tly-omega"
+    private antiBotHeaderValue = "z11-break-x"
 
     private readonly defaultHeaders = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:152.0) Gecko/20100101 Firefox/152.0",
@@ -18,12 +21,13 @@ class Provider {
     }
 
     private getHeaders(extra?: Record<string, string>): Record<string, string> {
-        return { ...this.defaultHeaders, "x-tly-nexus": this.nexusValue, ...(extra || {}) }
+        return { ...this.defaultHeaders, [this.antiBotHeaderName]: this.antiBotHeaderValue, ...(extra || {}) }
     }
 
-    // Fetches the main bundle to extract the current x-tly-nexus value from obfuscated char-code arrays.
-    // The bundle uses [120,45,...,115] (="x-tly-nexus") as a fixed key — the array that follows is the rotating value.
-    private async refreshNexus(): Promise<void> {
+    // Fetches the main bundle to extract the current "x-tly-*" header name/value from obfuscated char-code arrays.
+    // The bundle encodes the header name as a char-code array starting with [120,45,116,108,121,45,...] (="x-tly-" + suffix);
+    // the array right after it is the rotating value. Suffix ("nexus", "omega", ...) itself rotates, so it isn't hardcoded.
+    private async refreshAntiBotHeader(): Promise<void> {
         try {
             const homeRes = await fetch(this.baseUrl, {
                 headers: {
@@ -44,17 +48,20 @@ class Provider {
             if (!bundleRes.ok) return
             const bundle = await bundleRes.text()
 
-            // Fixed key array for "x-tly-nexus"; next char-code array is the rotating value
-            const m = bundle.match(/\[120,45,116,108,121,45,110,101,120,117,115\][^[]+\[(\d+(?:,\d+)+)\]\.map\([^)]+String\.fromCharCode/)
+            // "x-tly-" prefix fixed, suffix (name codes) variable; next char-code array is the rotating value
+            const m = bundle.match(/\[(120,45,116,108,121,45,\d+(?:,\d+)*)\][^[]+\[(\d+(?:,\d+)+)\]\.map\([^)]+String\.fromCharCode/)
             if (!m) return
 
-            const decoded = m[1].split(",").map((n: string) => String.fromCharCode(parseInt(n, 10))).join("")
-            if (decoded) {
-                this.nexusValue = decoded
-                console.log("x-tly-nexus atualizado:", decoded)
+            const decode = (codes: string) => codes.split(",").map((n: string) => String.fromCharCode(parseInt(n, 10))).join("")
+            const decodedName = decode(m[1])
+            const decodedValue = decode(m[2])
+            if (decodedName && decodedValue) {
+                this.antiBotHeaderName = decodedName
+                this.antiBotHeaderValue = decodedValue
+                console.log(`${decodedName} atualizado:`, decodedValue)
             }
         } catch (e) {
-            console.error("refreshNexus falhou:", e)
+            console.error("refreshAntiBotHeader falhou:", e)
         }
     }
 
@@ -72,10 +79,11 @@ class Provider {
         return match ? match[1] : ""
     }
 
+    private hasCredentials(): boolean {
+        return !!this.email && !!this.password && !this.email.startsWith("{{") && !this.password.startsWith("{{")
+    }
+
     private async getToken(): Promise<string> {
-        if (!this.email || !this.password || this.email.startsWith("{{") || this.password.startsWith("{{")) {
-            throw "E-mail e senha são obrigatórios nas configurações do provedor."
-        }
         const res = await fetch(`${this.apiUrl}/auth/login`, {
             method: "POST",
             headers: this.getHeaders({ "Content-Type": "application/json" }),
@@ -164,11 +172,19 @@ class Provider {
         const pagesUrl = `${this.apiUrl}/mangas/${mId}/chapters/${cId}`
         const proxy = "https://slightly-free-mayfly.edgecompute.app/?url="
 
+        // Login é opcional: a maioria dos capítulos funciona só com o cookie de visitante.
+        // Só tenta autenticar se o usuário configurou e-mail/senha (conteúdo restrito).
         const doFetch = async (): Promise<Response> => {
             const viewer = await this.getViewerCookie()
-            const token = await this.getToken()
-            const cookieParts = [`access_token=${token}`]
+            const cookieParts: string[] = []
             if (viewer) cookieParts.push(`tl_viewer=${viewer}`)
+            if (this.hasCredentials()) {
+                try {
+                    cookieParts.push(`access_token=${await this.getToken()}`)
+                } catch (e) {
+                    console.error("Login falhou, seguindo sem autenticação:", e)
+                }
+            }
             return fetch(pagesUrl, { headers: this.getHeaders({ "Cookie": cookieParts.join("; ") }) })
         }
 
@@ -176,8 +192,8 @@ class Provider {
             let response = await doFetch()
 
             if (response.status === 403) {
-                console.log("403 em páginas do capítulo, atualizando x-tly-nexus...")
-                await this.refreshNexus()
+                console.log("403 em páginas do capítulo, atualizando header anti-bot...")
+                await this.refreshAntiBotHeader()
                 response = await doFetch()
             }
 
