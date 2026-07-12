@@ -2,7 +2,7 @@
   {
     "id": "darkmahou-provider",
     "name": "DarkMahou",
-    "description": "Provedor de torrents de anime do site DarkMahou.org com busca inteligente e detecção corrigida de batches",
+    "description": "Anime torrent provider for the DarkMahou.org site with smart search and fixed batch detection",
     "author": "jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/darkmahou/darkmahou-provider.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/darkmahou.png",
@@ -14,7 +14,7 @@
   {
     "id": "kuromangas",
     "name": "Kuro Mangas",
-    "description": "Provedor de leitura de mangás do Kuro Mangas. OBS: Requer uma conta criada no site para funcionar.",
+    "description": "Manga reading provider for Kuro Mangas. NOTE: Requires an account created on the site to work.",
     "author": "jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/kuromangas/kuromangas.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/kuromangas.png",
@@ -26,7 +26,7 @@
   {
     "id": "hinatasoul-provider",
     "name": "Hinata Soul",
-    "description": "Provedor de streaming de animes do Hinata Soul.",
+    "description": "Anime streaming provider for Hinata Soul. May only work with a Brazil VPN.",
     "author": "Jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/hinatasoul/hinatasoul.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/hinatasoul.png",
@@ -38,7 +38,7 @@
   {
     "id": "nexustoons",
     "name": "Nexus Toons",
-    "description": "Provedor de mangás do Nexus Toons.",
+    "description": "Manga provider for Nexus Toons.",
     "author": "Jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/nexustoons/nexustoons.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/nexustoons.png",
@@ -50,7 +50,7 @@
   {
     "id": "manhastro",
     "name": "Manhastro",
-    "description": "Provedor de mangás e manhwas do Manhastro.net.",
+    "description": "Manga and manhwa provider for Manhastro.net.",
     "author": "jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/manhastro/manhastro.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/manhastro.png",
@@ -62,7 +62,7 @@
   {
     "id": "animesonlinecc-provider",
     "name": "AnimesOnlineCC",
-    "description": "Provedor de streaming de animes do AnimesOnlineCC.",
+    "description": "Anime streaming provider for AnimesOnlineCC. May only work with a Brazil VPN.",
     "author": "Jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/animesonlinecc/animesonlinecc.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/animesonlinecc.png",
@@ -86,7 +86,7 @@
   {
     "id": "mediocrescan",
     "name": "MediocreScan",
-    "description": "Provider de manhwas do MediocreScan. OBS: Requer uma conta criada no site (configurada no menu da extensão) para funcionar.",
+    "description": "Manhwa provider for MediocreScan. NOTE: Requires an account created on the site (configured in the extension's settings) to work.",
     "author": "jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/mediocrescan/mediocrescan.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/mediocrescan.png",
@@ -98,7 +98,7 @@
   {
     "id": "goyabu-provider",
     "name": "Goyabu",
-    "description": "Provedor de streaming de animes do Goyabu.",
+    "description": "Anime streaming provider for Goyabu. May only work with a Brazil VPN.",
     "author": "Jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/goyabu/goyabu.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/goyabu.png",
@@ -110,7 +110,7 @@
   {
     "id": "dattebayobr-provider",
     "name": "Dattebayo BR",
-    "description": "Provedor de streaming de animes do Dattebayo BR.",
+    "description": "Anime streaming provider for Dattebayo BR. May only work with a Brazil VPN.",
     "author": "Jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/dattebayobr/dattebayobr.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/dattebayobr.png",
@@ -122,7 +122,7 @@
   {
     "id": "mangalivre-tv",
     "name": "MangaLivre.tv",
-    "description": "Provider de mangás do site MangaLivre.tv (Agora ToonLivre) - Um site com mangás traduzidos para o português",
+    "description": "Manga provider for the MangaLivre.tv site (now ToonLivre) - a site with manga translated into Portuguese",
     "author": "jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/mangalivre.tv/mangalivre-tv.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/mangalivre.tv.png",
@@ -134,7 +134,7 @@
   {
     "id": "sakuramangas",
     "name": "Sakura Mangas",
-    "description": "Provedor do Sakura Mangas. REQUER BYPASS MANUAL DO CLOUDFLARE NAS CONSTANTES DO CÓDIGO FONTE.",
+    "description": "Sakura Mangas provider. Requires the user to paste the Cloudflare cookies obtained from the browser.",
     "author": "jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/sakuramangas/sakuramangas.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/sakuramangas.png",
@@ -194,7 +194,7 @@
   {
     "id": "ptbr-aggregator",
     "name": "Brazilian Torrent Aggregator",
-    "description": "Um agregador de múltiplos provedores (Nyaa, AnimeTosho, etc) com filtros automáticos para encontrar torrents de anime em Português Brasileiro (PT-BR).",
+    "description": "Aggregator of multiple providers (Nyaa, AnimeTosho, etc) with automatic filters to find Brazilian Portuguese (PT-BR) anime torrents.",
     "author": "jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/ptbr-aggregator/ptbr-aggregator.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/ptbr-aggregator.png",
@@ -206,7 +206,7 @@
   {
     "id": "amigosshareclub",
     "name": "Amigos Share Club (Animes)",
-    "description": "Busca de animes no Amigos Share Club (Tracker Privado).",
+    "description": "Anime search on Amigos Share Club (Private Tracker).",
     "author": "jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/amigosshareclub/amigosshareclub.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/amigosshareclub.png",
@@ -218,7 +218,7 @@
   {
     "id": "pizzariascan",
     "name": "Pizzaria Scan",
-    "description": "Site de Mangas e Manhwas em pt-BR",
+    "description": "Manga and manhwa site in pt-BR",
     "author": "Jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/pizzariascan/pizzariascan.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/pizzariascan.png",
@@ -254,7 +254,7 @@
   {
     "id": "animeyabu",
     "name": "Anime Yabu",
-    "description": "Provider de streaming de animes do Anime Yabu",
+    "description": "Anime streaming provider for Anime Yabu. May only work with a Brazil VPN.",
     "author": "Jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/animeyabu/animeyabu.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/animeyabu.png",
@@ -266,7 +266,7 @@
   {
     "id": "animesdigital",
     "name": "Animes Digital",
-    "description": "Provider de streaming de animes do Animes Digital",
+    "description": "Anime streaming provider for Animes Digital. May only work with a Brazil VPN.",
     "author": "Jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/animesdigital/animesdigital.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/animesdigital.png",
@@ -290,7 +290,7 @@
   {
     "id": "topanimes",
     "name": "Top Animes",
-    "description": "Provider de streaming de animes do Top Animes",
+    "description": "Anime streaming provider for Top Animes. May only work with a Brazil VPN.",
     "author": "Jhoorodr",
     "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/topanimes/topanimes.json",
     "icon": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/master/icon/topanimes.png",

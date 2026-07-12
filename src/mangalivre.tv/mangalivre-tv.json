@@ -1,7 +1,7 @@
 {
   "id": "mangalivre-tv",
   "name": "MangaLivre.tv",
-  "description": "Provider de mangás do site MangaLivre.tv (Agora ToonLivre) - Um site com mangás traduzidos para o português",
+  "description": "Manga provider for the MangaLivre.tv site (now ToonLivre) - a site with manga translated into Portuguese",
   "manifestURI": "https://raw.githubusercontent.com/Jhoorodre/seanime-provider/refs/heads/master/src/mangalivre.tv/mangalivre-tv.json",
   "version": "1.1.8",
   "author": "jhoorodr",
